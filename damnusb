@@ -3,12 +3,11 @@
 if [ -e /etc/udev/rules.d/99-damnusb.rules ]; then
 	echo "Enabling ports..."
 	mv "/etc/udev/rules.d/99-damnusb.rules" "/etc/udev/rules.d/99-damnusb.rules.disable"
-	udevadm control --reload && udevadm trigger
 	echo "Ports enabled"
 else
 	echo "Disabling ports..."
 	mv "/etc/udev/rules.d/99-damnusb.rules.disable" "/etc/udev/rules.d/99-damnusb.rules"
-	udevadm control --reload && udevadm trigger
-	echo "Ports are disabled"
+	echo "Ports disabled"
 fi
 
+udevadm control --reload && udevadm trigger
