@@ -20,7 +20,15 @@ usage()
     -p    USB ports to specify e.g. \"3-5,5-5\". Uses ALL ports by default or if empty
     -a    USB device attributes to specify e.g. \"idVendor=1000,idProduct=1234\", Uses ALL devices by default or if empty
     -f    /etc/udev/rules.d/ damnusb rules file name
-    -h    Usage message"
+    -h    Usage message
+
+  EXAMPLES:
+    damnusb enable
+    damnusb disable
+    damnusb enable -p 3-5,5-5 -a idVendor=3d24,idProduct=1234
+    damnusb enable -p 3-5
+    damnusb enable -f my-damnusb.rules
+    damnusb disable -f my-damnusb.rules"
 }
 
 forward_usage()
