@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -e /etc/udev/rules.d/99-damnusb.rules ]; then
 	echo "Enabling ports..."
