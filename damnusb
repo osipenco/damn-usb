@@ -123,3 +123,5 @@ case "$action" in
     exit 1
     ;;
 esac
+
+udevadm control --reload && udevadm trigger
