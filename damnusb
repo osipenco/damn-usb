@@ -17,10 +17,10 @@ usage()
     disable [-f FILENAME]    enable all ports for all devices
 
   OPTIONS:
-    -p <usb_port1>,<usb_port2>...        USB ports to specify e.g. \"3-5,5-5\". Uses ALL ports by default or if empty
-    -a <sysfs_attr1>,<sysfs_attr2>...    USB device attributes to specify e.g. \"idVendor=1000,idProduct=1234\", Uses ALL devices by default or if empty
-    -f <filename>                        /etc/udev/rules.d/ damnusb rules file name
-    -h                                   Usage message
+    -p <usb_port1>,<usb_port2>...                        USB ports to specify e.g. \"3-5,5-5\". Uses ALL ports by default or if empty
+    -a <sysfs_attr1>=<value>,<sysfs_attr2>=<value>...    USB device attributes to specify e.g. \"idVendor=1000,idProduct=1234\", Uses ALL devices by default or if empty
+    -f <filename>                                        /etc/udev/rules.d/ damnusb rules file name
+    -h                                                   Usage message
 
   EXAMPLES:
     damnusb enable
