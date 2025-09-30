@@ -80,16 +80,28 @@ case "$action" in
           exit 1
           ;;
       esac
-
     done
 
-    if [ -z "${#ports[@]}" ]; then
+    if [ -z "${ports[*]}" ]; then
+      nports="*"
+    else
+      nports="${ports[*]}"
+    fi
+    if [ -z "${attrs[*]}" ]; then
+      nattrs="*"
+    else
+      nattrs="${attrs[*]}"
+    fi
+
+    echo "Disabling usb ports $nports for attributes $nattrs..."
+
+    if [ -z "${ports[*]}" ]; then
       rule "" "${attrs[@]}" >/etc/udev/rules.d/"$filename"
     else
       for port in "${ports[@]}"; do
         rule "$port" "${attrs[@]}"
       done >/etc/udev/rules.d/"$filename"
-    fi
+    fi && echo "udev rules saved to /etc/udev/rules.d/$filename."
     ;;
   disable)
     while getopts "f:" opt; do
@@ -101,7 +113,10 @@ case "$action" in
       fi
     done
 
-    rm -f /etc/udev/rules.d/"$filename"
+    echo "Enabling usb ports..."
+    if rm -f /etc/udev/rules.d/"$filename"; then
+      echo "udev rules /etc/udev/rules.d/$filename were removed."
+    fi
     ;;
   -h)
     usage
