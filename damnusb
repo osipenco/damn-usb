@@ -56,14 +56,14 @@ rule()
   echo ", ATTR{authorized}=\"0\""
 }
 
+forward_usage "$@"
+OPTIND=1
+
 action="$1"
 shift 1
 
 case "$action" in
   enable)
-    forward_usage "$@"
-    OPTIND=1
-
     while getopts "p:a:f:" opt; do
       case "$opt" in
         p)
@@ -92,9 +92,6 @@ case "$action" in
     fi
     ;;
   disable)
-    forward_usage "$@"
-    OPTIND=1
-
     while getopts "f:" opt; do
       if [ "$opt" = 'f' ]; then
         filename="$OPTARG"
