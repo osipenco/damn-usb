@@ -84,11 +84,11 @@ case "$action" in
     done
 
     if [ -z "${#ports[@]}" ]; then
-      rule "" "${attrs[@]}"
+      rule "" "${attrs[@]}" >/etc/udev/rules.d/"$filename"
     else
       for port in "${ports[@]}"; do
         rule "$port" "${attrs[@]}"
-      done > /etc/udev/rules.d/"$filename"
+      done >/etc/udev/rules.d/"$filename"
     fi
     ;;
   disable)
