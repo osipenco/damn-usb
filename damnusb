@@ -118,10 +118,6 @@ case "$action" in
       echo "udev rules /etc/udev/rules.d/$filename were removed."
     fi
     ;;
-  -h)
-    usage
-    exit 0
-    ;;
   *)
     usage >&2
     exit 1
