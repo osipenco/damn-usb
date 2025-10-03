@@ -2,43 +2,27 @@
 
 OPTERR=0
 
-filename="99-damnusb.rules"
+rulename=""
+listname=""
+
 ports=()
 attrs=()
 
 usage()
 {
   echo "$0:
-  damnusb [ACTION]
-  damnusb -h
-
-  ACTIONS:
-    enable [OPTION]...       disable ports specified by OPTION -p except devices specified by OPTION -a
-    disable [-f FILENAME]    enable all ports for all devices
-
+  damnusb [OPTIONS]
+    
   OPTIONS:
-    -p <usb_port1>,<usb_port2>...        USB ports to specify e.g. \"3-5,5-5\". Uses ALL ports by default or if empty
-    -a <sysfs_attr1>,<sysfs_attr2>...    USB device attributes to specify e.g. \"idVendor=1000,idProduct=1234\", Uses ALL devices by default or if empty
-    -f <filename>                        /etc/udev/rules.d/ damnusb rules file name
-    -h                                   Usage message
-
-  EXAMPLES:
-    damnusb enable
-    damnusb disable
-    damnusb enable -p 3-5,5-5 -a idVendor=3d24,idProduct=1234
-    damnusb enable -p 3-5
-    damnusb enable -f my-damnusb.rules
-    damnusb disable -f my-damnusb.rules"
-}
-
-forward_usage()
-{
-  while getopts h opt; do
-    if [ "$opt" = 'h' ]; then
-      usage
-      exit 0
-    fi
-  done
+    -h                                   show help
+    -l rule/usb                          show a list of rules or USB ports
+    -c <rulename>                        create a rule to disable USB ports
+    -d <rulename>                        delete a rule to disable USB ports
+    -s <rulename>                        stop a rule to disable USB ports
+    -r <rulename>                        run a rule to disable USB ports
+    
+    -p <usb_port1>,<usb_port2>...        specify USB ports (default all USB ports)
+    -a <sysfs_attr1>,<sysfs_attr2>...    specify USB device attributes (default all USB devices)"
 }
 
 rule()
@@ -56,72 +40,90 @@ rule()
   echo ", ATTR{authorized}=\"0\""
 }
 
-forward_usage "$@"
 OPTIND=1
-
-action="$1"
-shift 1
-
-case "$action" in
-  enable)
-    while getopts "p:a:f:" opt; do
-      case "$opt" in
-        p)
-          IFS=',' read -ra ports <<< "$OPTARG"
+  
+while getopts "h:l:c:d:s:r:" opt; do
+  case "$opt" in
+    h)
+      usage
+      exit 0
+      ;;
+    l)
+      listname="$OPTARG"
+      
+      case "$listname" in
+        rule)
+          ls /etc/udev/rules.d/
+          exit 0
           ;;
-        a)
-          IFS=',' read -ra attrs <<< "$OPTARG"
-          ;;
-        f)
-          filename="$OPTARG"
+        usb)
+          lsusb
+          exit 0
           ;;
         *)
           usage >&2
           exit 1
           ;;
       esac
-    done
-
-    if [ -z "${ports[*]}" ]; then
-      nports="*"
-    else
-      nports="${ports[*]}"
-    fi
-    if [ -z "${attrs[*]}" ]; then
-      nattrs="*"
-    else
-      nattrs="${attrs[*]}"
-    fi
-
-    echo "Disabling usb ports $nports for attributes $nattrs..."
-
-    if [ -z "${ports[*]}" ]; then
-      rule "" "${attrs[@]}" >/etc/udev/rules.d/"$filename"
-    else
-      for port in "${ports[@]}"; do
-        rule "$port" "${attrs[@]}"
-      done >/etc/udev/rules.d/"$filename"
-    fi && echo "udev rules saved to /etc/udev/rules.d/$filename."
-    ;;
-  disable)
-    while getopts "f:" opt; do
-      if [ "$opt" = 'f' ]; then
-        filename="$OPTARG"
+      ;;
+    c)
+      rulename="$OPTARG"
+      
+      while getopts "p:a:" opt; do
+        case "$opt" in
+          p)
+            IFS=',' read -ra ports <<< "$OPTARG"
+            ;;
+          a)
+            IFS=',' read -ra attrs <<< "$OPTARG"
+            ;;
+          *)
+            ;;
+        esac
+      done
+      
+      if [ -z "${ports[*]}" ]; then
+        nports="*"
       else
-        usage >&2
-        exit 1
+        nports="${ports[*]}"
       fi
-    done
-
-    echo "Enabling usb ports..."
-    if rm -f /etc/udev/rules.d/"$filename"; then
-      echo "udev rules /etc/udev/rules.d/$filename were removed."
-    fi
-    ;;
-  *)
-    usage >&2
-    exit 1
-    ;;
-esac
+      if [ -z "${attrs[*]}" ]; then
+        nattrs="*"
+      else
+        nattrs="${attrs[*]}"
+      fi
+      
+      if [ -z "${ports[*]}" ]; then
+        rule "" "${attrs[@]}" >/etc/udev/rules.d/"$rulename".rules
+      else
+        for port in "${ports[@]}"; do
+          rule "$port" "${attrs[@]}"
+        done >/etc/udev/rules.d/"$rulename".rules
+      fi && echo "damnusb: create rule $rulename"
+      ;;
+    d)
+      rulename="$OPTARG"      
+      if rm /etc/udev/rules.d/"$rulename".rules; then
+        echo "damnusb: delete rule $rulename"
+      fi
+      ;;
+    s)
+      rulename="$OPTARG"
+      if mv /etc/udev/rules.d/"$rulename".rules /etc/udev/rules.d/"$rulename".rules.disable; then
+        echo "damnusb: stop rule $rulename"
+      fi
+      ;;
+    r)
+      rulename="$OPTARG"
+      if mv /etc/udev/rules.d/"$rulename".rules.disable /etc/udev/rules.d/"$rulename".rules; then
+        echo "damnusb: run rule $rulename"
+      fi
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
 
 udevadm control --reload && udevadm trigger
