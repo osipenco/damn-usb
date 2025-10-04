@@ -1,23 +1,27 @@
-# damnusb
-Enable and disable USB ports with one command (including camera, card reader, and hub)
+## damnusb
 
-## Build
+Automates the management of *udev* rules for USB ports and devices
+
+
+### Build
 ```sh
     sudo git clone https://github.com/osipenco/damn-usb
     cd damn-usb
     sudo make install
 ```
 
-## Usage
+### Dependencies
 ```sh
-    # Help
-    damnusb -h
-
-    # Disable all ports
-    sudo damnusb enable
-
-    # Disable all ports except a device
-    sudo damnusb enable -a idVendor=3d24,idProduct=1234
-
-    # See more in the usage message
+    # Arch
+    sudo pacman -S usbutils
+    
+    # Debian
+    sudo apt install usbutils
+    
+    # Fedora
+    sudo dnf install usbutils
 ```
+
+### Usage
+
+[README.rst](https://github.com/osipenco/damn-usb/blob/dev/README.rst)
